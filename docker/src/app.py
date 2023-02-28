@@ -2,10 +2,15 @@ from flask import Flask, jsonify, request
 
 app = Flask(__name__)
 
+def msg_response(data):
+    res = {"message": "Hello " + data['to'] + " your message will be send"}
+    return res
+    
+
 @app.route('/DevOps', methods=['POST'])
 def post_message():
-    data = request.json
-    return jsonify({"message": "Hello " + data['to'] + " your message will be send"})
+    req_data = request.json
+    return jsonify(msg_response(req_data))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
