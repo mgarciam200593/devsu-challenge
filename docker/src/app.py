@@ -8,4 +8,4 @@ def post_message():
     return jsonify({"message": "Hello " + data['to'] + " your message will be send"})
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host='0.0.0.0')
