@@ -32,7 +32,7 @@ pipeline {
         }
         stage('Branch Test'){
             steps {
-                sh 'printenv'
+                sh 'echo $GIT_BRANCH'
                 script {
                     if (env.BRANCH_NAME == 'main'){
                         echo 'main branch'
