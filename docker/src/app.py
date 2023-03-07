@@ -12,5 +12,9 @@ def post_message():
     req_data = request.json
     return jsonify(msg_response(req_data))
 
+@app.errorhandler(405)
+def method_not_allowed(e):
+    return 'ERROR'
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
