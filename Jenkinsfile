@@ -32,7 +32,7 @@ pipeline {
         }
         stage('Branch Test'){
             steps {
-                echo scm.GIT_BRANCH
+                sh 'printenv'
                 script {
                     if (env.BRANCH_NAME == 'main'){
                         echo 'main branch'
