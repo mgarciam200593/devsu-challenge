@@ -34,7 +34,7 @@ pipeline {
             steps {
                 sh 'echo $GIT_BRANCH'
                 script {
-                    if (env.BRANCH_NAME == 'main'){
+                    if (env.GIT_BRANCH == 'origin/main'){
                         echo 'main branch'
                     }
                     else {
