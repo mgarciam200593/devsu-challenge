@@ -38,7 +38,6 @@ pipeline {
         }
         stage('Branch Test'){
             steps {
-                echo env.GIT_BRANCH
                 script {
                     if (env.GIT_BRANCH == 'origin/main'){
                         input message: "Approve Deploy?", ok: "Yes"
