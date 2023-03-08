@@ -1,5 +1,11 @@
 pipeline {
     agent any
+    environment {
+        REPO_REGISTRY   = 'public.ecr.aws/t1c2g3k3'
+        IMAGE_NAME      = 'test-devsu'
+        IMAGE_TAG       = '0.0.1'
+        CONTAINER_NAME  = 'flask-api'
+    }
     triggers {
         pollSCM '* * * * *'
     }
@@ -12,29 +18,29 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Building Flask API image'
-                sh 'cd docker/ && docker build -t public.ecr.aws/t1c2g3k3/test-devsu:0.0.1 .'
+                sh 'cd docker/ && docker build -t ${REPO_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} .'
             }
         }
         stage('Test'){
             steps {
                 echo 'Testing Flask API'
-                sh 'docker run --name test public.ecr.aws/t1c2g3k3/test-devsu:0.0.1 sh -c "pylint src/app.py ; pytest test.py"'
-                sh 'docker stop test'
-                sh 'docker rm test'
+                sh 'docker run --name ${CONTAINER_NAME} ${REPO_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} sh -c "pylint src/app.py ; pytest test.py"'
+                sh 'docker stop ${CONTAINER_NAME}'
+                sh 'docker rm ${CONTAINER_NAME}'
             }
         }
         stage('Push to repository'){
             steps {
                 echo 'Push to ECR Repository'
-                sh 'aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/t1c2g3k3'
-                sh 'docker push public.ecr.aws/t1c2g3k3/test-devsu:0.0.1'
+                sh 'aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${REPO_REGISTRY}'
+                sh 'docker push ${REPO_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}'
             }
         }
         stage('Branch Test'){
             steps {
-                sh 'echo $GIT_BRANCH'
                 script {
                     if (env.GIT_BRANCH == 'origin/main'){
+                        input message: "Approve Deploy?", ok: "Yes"
                         echo 'main branch'
                     }
                     else {
