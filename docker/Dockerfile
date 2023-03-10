@@ -8,6 +8,6 @@ COPY . /app
 RUN pip --no-cache-dir install pytest pylint
 RUN pip --no-cache-dir install -r requirements.txt
 
-EXPOSE 5000
+EXPOSE 80
 
 CMD ["python", "src/app.py"]
