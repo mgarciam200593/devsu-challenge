@@ -7,7 +7,7 @@ def msg_response(data):
     return res
 
 
-@app.route('/healthz', methods=['GET'])
+@app.route('/', methods=['GET'])
 def health_check():
     return "Health Check!!"
 
