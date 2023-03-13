@@ -52,6 +52,7 @@ pipeline {
         stage('Destroy App'){
             steps {
                 sh 'echo ${GIT_BRANCH#*/}'
+		input message: "Approve Deploy?", ok: "Yes"
                 sh 'terraform -chdir="./infra/nginx" init'
                 sh 'terraform -chdir="./infra/nginx" workspace new ${GIT_BRANCH#*/}  || echo "Workspace ${GIT_BRANCH#*/} already exists"'
                 sh 'terraform -chdir="./infra/nginx" workspace select ${GIT_BRANCH#*/}'
