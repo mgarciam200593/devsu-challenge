@@ -3,13 +3,13 @@ pipeline {
     environment {
         REPO_REGISTRY   = 'public.ecr.aws/t1c2g3k3'
         IMAGE_NAME      = 'test-devsu'
-        IMAGE_TAG       = '0.0.1'
+        IMAGE_TAG       = '0.0.2'
         CONTAINER_NAME  = 'flask-api'
     }
     stages {
         stage('Git Checkout') {
             steps {
-                checkout scm
+                checkout scmGit(branches: [[name: 'main'], [name: 'dev']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/mgarciam200593/devsu-challenge.git']])
             }
         }
         stage('Build') {
