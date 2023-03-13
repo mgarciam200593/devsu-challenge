@@ -1,5 +1,6 @@
 pipeline {
     agent any
+    def env = ""
     environment {
         REPO_REGISTRY   = 'public.ecr.aws/t1c2g3k3'
         IMAGE_NAME      = 'test-devsu'
@@ -33,17 +34,24 @@ pipeline {
                 sh 'docker push ${REPO_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}'
             }
         }
-        stage('Branch Test'){
+        stage('Deploy App'){
             steps {
                 script {
                     if (env.GIT_BRANCH == 'origin/main'){
-                        input message: "Approve Deploy?", ok: "Yes"
-                        echo 'main branch'
+                        env = "prod"
                     }
                     else {
-                        echo 'dev branch'
+                        env = "dev"
                     }
                 }
+                sh 'terraform -chdir="./infra/nginx" workspace new ${env}'
+                sh 'terraform -chdir="./infra/nginx" workspace select ${env}'
+                sh 'terraform -chdir="./infra/nginx" plan'
+                sh 'terraform -chdir="./infra/nginx" apply -auto-approve'
+                sh 'terraform -chdir="./infra/application" workspace new ${env}'
+                sh 'terraform -chdir="./infra/application" workspace select ${env}'
+                sh 'terraform -chdir="./infra/application" plan'
+                sh 'terraform -chdir="./infra/application" apply -var="image_tag=${IMAGE_TAG}" -auto-approve'
             }
         }
     }
