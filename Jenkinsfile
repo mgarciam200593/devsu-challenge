@@ -49,7 +49,7 @@ pipeline {
             }
         }
         
-        stage('Deploy App'){
+        stage('Destroy App'){
             steps {
                 sh 'echo ${GIT_BRANCH#*/}'
                 sh 'terraform -chdir="./infra/nginx" init'
