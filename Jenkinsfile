@@ -36,22 +36,21 @@ pipeline {
         stage('Deploy App'){
             steps {
                 script {
-                    def env = ""
                     if (env.GIT_BRANCH == 'origin/main'){
-                        env = "prod"
+                        echo 'prod'
                     }
                     else {
-                        env = "dev"
+                        sh 'terraform -chdir="./infra/nginx" workspace new dev'
+                        sh 'terraform -chdir="./infra/nginx" workspace select dev'
+                        sh 'terraform -chdir="./infra/nginx" plan'
+                        sh 'terraform -chdir="./infra/nginx" apply -auto-approve'
+                        sh 'terraform -chdir="./infra/application" workspace new dev'
+                        sh 'terraform -chdir="./infra/application" workspace select dev'
+                        sh 'terraform -chdir="./infra/application" plan'
+                        sh 'terraform -chdir="./infra/application" apply -var="image_tag=${IMAGE_TAG}" -auto-approve'
                     }
                 }
-                sh 'terraform -chdir="./infra/nginx" workspace new ${env}'
-                sh 'terraform -chdir="./infra/nginx" workspace select ${env}'
-                sh 'terraform -chdir="./infra/nginx" plan'
-                sh 'terraform -chdir="./infra/nginx" apply -auto-approve'
-                sh 'terraform -chdir="./infra/application" workspace new ${env}'
-                sh 'terraform -chdir="./infra/application" workspace select ${env}'
-                sh 'terraform -chdir="./infra/application" plan'
-                sh 'terraform -chdir="./infra/application" apply -var="image_tag=${IMAGE_TAG}" -auto-approve'
+                
             }
         }
     }
