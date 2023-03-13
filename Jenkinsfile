@@ -3,11 +3,8 @@ pipeline {
     environment {
         REPO_REGISTRY   = 'public.ecr.aws/t1c2g3k3'
         IMAGE_NAME      = 'test-devsu'
-        IMAGE_TAG       = '0.0.1'
+        IMAGE_TAG       = '0.0.2'
         CONTAINER_NAME  = 'flask-api'
-    }
-    triggers {
-        pollSCM '* * * * *'
     }
     stages {
         stage('Git Checkout') {
@@ -36,17 +33,33 @@ pipeline {
                 sh 'docker push ${REPO_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}'
             }
         }
-        stage('Branch Test'){
+        stage('Deploy App'){
             steps {
-                script {
-                    if (env.GIT_BRANCH == 'origin/main'){
-                        input message: "Approve Deploy?", ok: "Yes"
-                        echo 'main branch'
-                    }
-                    else {
-                        echo 'dev branch'
-                    }
-                }
+                sh 'echo ${GIT_BRANCH#*/}'
+                sh 'terraform -chdir="./infra/nginx" init'
+                sh 'terraform -chdir="./infra/nginx" workspace new ${GIT_BRANCH#*/}  || echo "Workspace ${GIT_BRANCH#*/} already exists"'
+                sh 'terraform -chdir="./infra/nginx" workspace select ${GIT_BRANCH#*/}'
+                sh 'terraform -chdir="./infra/nginx" plan'
+                sh 'terraform -chdir="./infra/nginx" apply -auto-approve'
+                sh 'terraform -chdir="./infra/application" init'
+                sh 'terraform -chdir="./infra/application" workspace new ${GIT_BRANCH#*/} || echo "Workspace ${GIT_BRANCH#*/} already exists"'
+                sh 'terraform -chdir="./infra/application" workspace select ${GIT_BRANCH#*/}'
+                sh 'terraform -chdir="./infra/application" plan -var="image_tag=${IMAGE_TAG}"'
+                sh 'terraform -chdir="./infra/application" apply -var="image_tag=${IMAGE_TAG}" -auto-approve'
+            }
+        }
+        
+        stage('Destroy App'){
+            steps {
+                sh 'echo ${GIT_BRANCH#*/}'
+                sh 'terraform -chdir="./infra/nginx" init'
+                sh 'terraform -chdir="./infra/nginx" workspace new ${GIT_BRANCH#*/}  || echo "Workspace ${GIT_BRANCH#*/} already exists"'
+                sh 'terraform -chdir="./infra/nginx" workspace select ${GIT_BRANCH#*/}'
+                sh 'terraform -chdir="./infra/nginx" destroy -auto-approve'
+                sh 'terraform -chdir="./infra/application" init'
+                sh 'terraform -chdir="./infra/application" workspace new ${GIT_BRANCH#*/} || echo "Workspace ${GIT_BRANCH#*/} already exists"'
+                sh 'terraform -chdir="./infra/application" workspace select ${GIT_BRANCH#*/}'
+                sh 'terraform -chdir="./infra/application" destroy -auto-approve'
             }
         }
     }
