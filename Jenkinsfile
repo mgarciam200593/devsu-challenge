@@ -37,16 +37,18 @@ pipeline {
             steps {
                 script {
                     if (env.GIT_BRANCH == 'origin/main'){
-                        echo 'prod'
+                        echo '${GIT_BRANCH#*/}'
                     }
                     else {
                         sh 'terraform -chdir="./infra/nginx" init'
-                        sh 'terraform -chdir="./infra/nginx" workspace new dev  || echo "Workspace dev already exists"'
-                        sh 'terraform -chdir="./infra/nginx" workspace select dev'
+                        sh 'terraform -chdir="./infra/nginx" workspace new ${GIT_BRANCH#*/}  || echo "Workspace ${GIT_BRANCH#*/} already exists"'
+                        sh 'terraform -chdir="./infra/nginx" workspace select ${GIT_BRANCH#*/}'
+                        sh 'terraform -chdir="./infra/nginx" plan'
                         sh 'terraform -chdir="./infra/nginx" apply -auto-approve'
                         sh 'terraform -chdir="./infra/application" init'
-                        sh 'terraform -chdir="./infra/application" workspace new dev || echo "Workspace dev already exists"'
-                        sh 'terraform -chdir="./infra/application" workspace select dev'
+                        sh 'terraform -chdir="./infra/application" workspace new ${GIT_BRANCH#*/} || echo "Workspace ${GIT_BRANCH#*/} already exists"'
+                        sh 'terraform -chdir="./infra/application" workspace select ${GIT_BRANCH#*/}'
+                        sh 'terraform -chdir="./infra/application" plan -var="image_tag=${IMAGE_TAG}"'
                         sh 'terraform -chdir="./infra/application" apply -var="image_tag=${IMAGE_TAG}" -auto-approve'
                     }
                 }
