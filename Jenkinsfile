@@ -41,12 +41,12 @@ pipeline {
                     }
                     else {
                         sh 'terraform -chdir="./infra/nginx" init'
-                        sh 'terraform -chdir="./infra/nginx" workspace new dev  || echo "Workspace dev already exists'
+                        sh 'terraform -chdir="./infra/nginx" workspace new dev  || echo "Workspace dev already exists"'
                         sh 'terraform -chdir="./infra/nginx" workspace select dev'
                         sh 'terraform -chdir="./infra/nginx" plan'
                         sh 'terraform -chdir="./infra/nginx" apply -auto-approve'
                         sh 'terraform -chdir="./infra/application" init'
-                        sh 'terraform -chdir="./infra/application" workspace new dev || echo "Workspace dev already exists'
+                        sh 'terraform -chdir="./infra/application" workspace new dev || echo "Workspace dev already exists"'
                         sh 'terraform -chdir="./infra/application" workspace select dev'
                         sh 'terraform -chdir="./infra/application" plan'
                         sh 'terraform -chdir="./infra/application" apply -var="image_tag=${IMAGE_TAG}" -auto-approve'
