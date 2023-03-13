@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Git Checkout') {
             steps {
-                checkout scmGit(branches: [[name: 'main'], [name: 'dev']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/mgarciam200593/devsu-challenge.git']])
+                checkout scm
             }
         }
         stage('Build') {
