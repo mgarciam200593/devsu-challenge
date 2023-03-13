@@ -1,6 +1,5 @@
 pipeline {
     agent any
-    def env = ""
     environment {
         REPO_REGISTRY   = 'public.ecr.aws/t1c2g3k3'
         IMAGE_NAME      = 'test-devsu'
@@ -37,6 +36,7 @@ pipeline {
         stage('Deploy App'){
             steps {
                 script {
+                    def env = ""
                     if (env.GIT_BRANCH == 'origin/main'){
                         env = "prod"
                     }
