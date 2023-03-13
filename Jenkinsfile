@@ -48,7 +48,7 @@ pipeline {
                 sh 'terraform -chdir="./infra/application" apply -var="image_tag=${IMAGE_TAG}" -auto-approve'
             }
         }
-        }
+        
         stage('Deploy App'){
             steps {
                 sh 'echo ${GIT_BRANCH#*/}'
