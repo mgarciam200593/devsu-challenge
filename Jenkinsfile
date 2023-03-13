@@ -40,10 +40,12 @@ pipeline {
                         echo 'prod'
                     }
                     else {
+                        sh 'terraform -chdir="./infra/nginx" init'
                         sh 'terraform -chdir="./infra/nginx" workspace new dev'
                         sh 'terraform -chdir="./infra/nginx" workspace select dev'
                         sh 'terraform -chdir="./infra/nginx" plan'
                         sh 'terraform -chdir="./infra/nginx" apply -auto-approve'
+                        sh 'terraform -chdir="./infra/application" init'
                         sh 'terraform -chdir="./infra/application" workspace new dev'
                         sh 'terraform -chdir="./infra/application" workspace select dev'
                         sh 'terraform -chdir="./infra/application" plan'
