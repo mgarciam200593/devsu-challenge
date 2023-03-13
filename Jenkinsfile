@@ -46,7 +46,6 @@ pipeline {
                 sh 'terraform -chdir="./infra/application" workspace select ${GIT_BRANCH#*/}'
                 sh 'terraform -chdir="./infra/application" plan -var="image_tag=${IMAGE_TAG}"'
                 sh 'terraform -chdir="./infra/application" apply -var="image_tag=${IMAGE_TAG}" -auto-approve'
-                }
             }
         }
     }
