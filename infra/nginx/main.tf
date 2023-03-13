@@ -51,6 +51,8 @@ provider "kubernetes" {
     args = [
       "eks",
       "get-token",
+      "--region",
+      "us-east-1",
       "--cluster-name",
       data.aws_eks_cluster.cluster.name
     ]
