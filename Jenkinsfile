@@ -6,9 +6,6 @@ pipeline {
         IMAGE_TAG       = '0.0.2'
         CONTAINER_NAME  = 'flask-api'
     }
-    triggers {
-        pollSCM '* * * * *'
-    }
     stages {
         stage('Git Checkout') {
             steps {
